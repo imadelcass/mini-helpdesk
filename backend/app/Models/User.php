@@ -53,4 +53,14 @@ class User extends Authenticatable
     {
         return $this->role === RolesEnum::ADMIN->value;
     }
+
+    public function isAgent(): bool
+    {
+        return $this->role === RolesEnum::AGENT->value;
+    }
+
+    public function isUser(): bool
+    {
+        return $this->role === RolesEnum::USER->value;
+    }
 }

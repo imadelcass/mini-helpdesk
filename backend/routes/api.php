@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FaqController;
+use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Route;
 
 // Auth
@@ -15,4 +16,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Faq
     Route::apiResource('faqs', FaqController::class);
+
+    // Ticket
+    Route::apiResource('tickets', TicketController::class);
 });
