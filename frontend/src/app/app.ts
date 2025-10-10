@@ -1,6 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Auth } from './core/services/auth';
 
 @Component({
   selector: 'app-root',
@@ -8,13 +7,4 @@ import { Auth } from './core/services/auth';
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
-export class App {
-  protected auth = inject(Auth);
-
-  constructor() {
-    this.auth.login({
-      email: 'admin@yourdomain.com',
-      password: '00000000',
-    });
-  }
-}
+export class App {}
