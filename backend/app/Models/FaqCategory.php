@@ -9,4 +9,9 @@ class FaqCategory extends Model
 {
     /** @use HasFactory<\Database\Factories\FaqCategoryFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'slug',
+    ];
 }

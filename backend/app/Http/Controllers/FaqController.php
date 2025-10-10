@@ -4,19 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Models\Faq;
 use App\Http\Requests\FaqRequest;
+use App\Http\Resources\FaqResource;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class FaqController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         Gate::authorize('viewAny', Faq::class);
 
-        return Faq::all();
+        return FaqResource::collection(
+            QueryBuilder::for(Faq::class)
+                ->allowedFilters(['question', 'answer', 'category.name'])
+                ->allowedIncludes(['category'])
+                ->paginate(...__paginate($request))
+        );
     }
 
     /**
