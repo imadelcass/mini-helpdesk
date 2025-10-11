@@ -1,0 +1,46 @@
+<div class="container mx-auto p-6">
+  <h1 class="text-3xl font-bold mb-6">FAQ</h1>
+
+  <!-- Search -->
+  <div class="mb-6">
+    <input
+      type="text"
+      [(ngModel)]="search"
+      (keyup.enter)="onSearch()"
+      placeholder="Search FAQs..."
+      class="w-full px-4 py-2 border rounded-lg"
+    />
+  </div>
+
+  <!-- FAQ List with Infinite Scroll -->
+  <div
+    class="space-y-4 max-h-[600px] overflow-y-auto"
+    (scroll)="onScroll($event)"
+  >
+    @for (faq of faqService.faqs(); track faq.id) {
+      <div class="bg-white p-6 rounded-lg shadow">
+        <div class="flex items-start justify-between">
+          <div class="flex-1">
+            <span class="text-sm text-blue-600 font-medium">
+              {{ faq.category.name }}
+            </span>
+            <h3 class="text-lg font-semibold mt-1">{{ faq.question }}</h3>
+            <p class="text-gray-600 mt-2">{{ faq.answer }}</p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- @if (faqService.loading()) {
+      <div class="text-center py-4">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      </div>
+    } -->
+
+    <!-- @if (!faqService.hasMore() && faqService.faqs().length > 0) {
+      <div class="text-center text-gray-500 py-4">
+        No more FAQs to load
+      </div>
+    } -->
+  </div>
+</div>
