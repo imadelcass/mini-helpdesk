@@ -18,9 +18,9 @@ class FaqResource extends JsonResource
             'id' => $this->id,
             'question' => $this->question,
             'answer' => $this->answer,
+            'faq_category_id' => $this->faq_category_id,
             'category' => $this->whenLoaded('category'),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at
         ];
     }
 }

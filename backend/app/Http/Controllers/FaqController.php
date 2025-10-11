@@ -21,8 +21,9 @@ class FaqController extends Controller
 
         return FaqResource::collection(
             QueryBuilder::for(Faq::class)
+                ->select(['id', 'question', 'answer', 'faq_category_id', 'created_at'])
+                ->with(['category:id,name'])
                 ->allowedFilters(['question', 'answer', 'category.name'])
-                ->allowedIncludes(['category'])
                 ->paginate(...__paginate($request))
         );
     }
