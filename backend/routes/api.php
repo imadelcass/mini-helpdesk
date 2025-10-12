@@ -18,6 +18,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // FAQ management routes
     Route::apiResource('faqs', FaqController::class);
+    // FAQ Category management routes
+    Route::get('faq-categories', [FaqController::class, 'categories']);
 
     // Ticket management routes
     Route::apiResource('tickets', TicketController::class);

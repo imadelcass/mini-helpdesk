@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Faq;
 use App\Http\Requests\FaqRequest;
 use App\Http\Resources\FaqResource;
+use App\Models\FaqCategory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
@@ -24,6 +25,7 @@ class FaqController extends Controller
                 ->select(['id', 'question', 'answer', 'faq_category_id', 'created_at'])
                 ->with(['category:id,name'])
                 ->allowedFilters(['question', 'answer', 'category.name'])
+                ->defaultSort('-created_at')
                 ->paginate(...__paginate($request))
         );
     }
@@ -72,5 +74,13 @@ class FaqController extends Controller
         $faq->delete();
 
         return response()->noContent();
+    }
+
+    /**
+     * Display a listing of FAQ categories.
+     */
+    public function categories()
+    {
+        return response()->json(FaqCategory::select(['id', 'name'])->get());
     }
 }
