@@ -4,23 +4,35 @@ namespace App\Http\Controllers;
 
 use App\Models\Ticket;
 use App\Http\Requests\TicketRequest;
+use App\Http\Resources\TicketResource;
+use App\Models\TicketCategory;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class TicketController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $tickets = Ticket::query();
 
-        if (auth()->user()->isUser()) {
-            $tickets->where('user_id', auth()->id());
-        }
+        // if (auth()->user()->isUser()) {
+        //     $tickets->where('user_id', auth()->id());
+        // }
 
-        return response()->json($tickets->get());
+        return TicketResource::collection(
+            QueryBuilder::for($tickets)
+                ->select(['id', 'title', 'description', 'priority', 'status', 'user_id', 'ticket_category_id', 'created_at', 'updated_at'])
+                ->with(['category:id,name'])
+                ->allowedFilters(['title', 'description', 'priority', 'status'])
+                ->allowedSorts(['title', 'description', 'priority', 'status'])
+                ->defaultSort('-created_at')
+                ->paginate(...__paginate($request))
+        );
     }
 
     /**
@@ -30,7 +42,7 @@ class TicketController extends Controller
     {
         Gate::authorize('create', Ticket::class);
 
-        Ticket::create($request->validated());
+        Ticket::create($request->validated() + ['user_id' => auth()->id()]);
 
         return response()->noContent(Response::HTTP_CREATED);
     }
@@ -67,5 +79,13 @@ class TicketController extends Controller
         $ticket->delete();
 
         return response()->noContent();
+    }
+
+    /**
+     * Display a listing of FAQ categories.
+     */
+    public function categories()
+    {
+        return response()->json(TicketCategory::select(['id', 'name'])->get());
     }
 }

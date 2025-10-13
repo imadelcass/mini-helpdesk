@@ -23,6 +23,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Ticket management routes
     Route::apiResource('tickets', TicketController::class);
+    // Ticket Category management routes
+    Route::get('ticket-categories', [TicketController::class, 'categories']);
 
     // Ticket comment management routes
     Route::apiResource('ticket-comments', TicketCommentController::class);
