@@ -8,8 +8,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
     canActivate: [loginGuard],
   },
+  // Admin users
   {
-    path: '',
+    path: 'admin',
+    loadComponent: () =>
+      import('./core/layouts/admin-layout/admin-layout').then((m) => m.AdminLayout),
     canActivate: [authGuard],
     children: [
       {
@@ -19,7 +22,26 @@ export const routes: Routes = [
       },
       {
         path: 'faqs',
-        loadComponent: () => import('./features/faq/faq-list/faq-list').then((m) => m.FaqList),
+        loadComponent: () =>
+          import('./features/faq/faq-list-admin/faq-list-admin').then((m) => m.FaqListAdmin),
+      },
+    ],
+  },
+  // Normal users
+  {
+    path: '',
+    loadComponent: () => import('./core/layouts/app-layout/app-layout').then((m) => m.AppLayout),
+    canActivate: [authGuard],
+    children: [
+      {
+        path: '',
+        redirectTo: 'faqs',
+        pathMatch: 'full',
+      },
+      {
+        path: 'faqs',
+        loadComponent: () =>
+          import('./features/faq/faq-list-public/faq-list-public').then((m) => m.FaqListPublic),
       },
     ],
   },

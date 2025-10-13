@@ -1,0 +1,24 @@
+<div class="min-h-screen">
+  <!-- Header -->
+  <header>
+    <div>
+      <span>HelpDesk</span>
+    </div>
+
+    <div class="flex align-items-center gap-4">
+      <a pButton label="FAQs" icon="pi pi-question" routerLink="/faqs" class="p-button-text"></a>
+      <a
+        pButton
+        label="My Tickets"
+        icon="pi pi-ticket"
+        routerLink="/tickets"
+        class="p-button-text"
+      ></a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 p-4">
+    <router-outlet></router-outlet>
+  </main>
+</div>

@@ -16,7 +16,7 @@ import { DividerModule } from 'primeng/divider';
 import { FaqForm } from '../components/faq-form/faq-form';
 import { ConfirmationService } from 'primeng/api';
 @Component({
-  selector: 'app-faq-list',
+  selector: 'app-faq-list-admin',
   standalone: true,
   providers: [ConfirmationService],
   imports: [
@@ -35,35 +35,48 @@ import { ConfirmationService } from 'primeng/api';
     FaqForm,
     ConfirmPopupModule,
   ],
-  templateUrl: './faq-list.html',
+  templateUrl: './faq-list-admin.html',
 })
-export class FaqList implements OnInit {
+export class FaqListAdmin implements OnInit {
   search = signal('');
   category = signal('');
   searchQuery = signal('');
   payload = signal({ 'page[currentPage]': 1 });
   showFaqForm = false;
   selectedFaq?: any;
+  allFaqs!: any[];
 
-  constructor(
-    public faqService: FaqService,
-    public authService: Auth,
-    private confirmationService: ConfirmationService
-  ) {}
+  constructor(public faqService: FaqService, public authService: Auth) {}
   ngOnInit(): void {
     // Fetch FAQS categories
     this.faqService.fetchCategories().subscribe();
 
-    this.fetchFaqs();
+    this.fetchFaqs().add(() => {
+      this.allFaqs = [
+        ...this.faqService.faqs(),
+        ...Array.from({ length: this.faqService.totalRecords() - this.faqService.faqs().length }),
+      ];
+    });
   }
 
-  loadMore(): void {
-    this.payload.set({
-      ...this.payload(),
-      'page[currentPage]': this.payload()['page[currentPage]'] + 1,
-    });
+  onLazyLoad(event: TableLazyLoadEvent) {
+    const currentPage = event.first! / event.rows! + 1;
 
-    this.fetchFaqs();
+    if (!isNaN(currentPage) && currentPage != 1) {
+      this.payload.set({
+        ...this.payload(),
+        'page[currentPage]': currentPage,
+      });
+
+      // Update the data
+      this.fetchFaqs().add(() => {
+        this.allFaqs = [
+          ...this.allFaqs.slice(0, event.first!),
+          ...this.faqService.faqs(),
+          ...this.allFaqs.slice(event.first! + event.rows!),
+        ];
+      });
+    }
   }
 
   cols = [
@@ -74,19 +87,8 @@ export class FaqList implements OnInit {
     { field: 'actions', header: 'Actions' },
   ];
 
-  fetchFaqs(): void {
-    this.faqService.fetch(this.payload()).subscribe();
-  }
-
-  onPage(event: TableLazyLoadEvent): void {
-    const currentPage = event.first! / event.rows! + 1;
-
-    this.payload.set({
-      ...this.payload(),
-      'page[currentPage]': currentPage,
-    });
-
-    this.fetchFaqs();
+  fetchFaqs() {
+    return this.faqService.fetch(this.payload()).subscribe();
   }
 
   onSearch(): void {
