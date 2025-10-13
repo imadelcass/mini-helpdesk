@@ -26,6 +26,11 @@ export class AdminLayout {
       label: 'FAQ Management',
       icon: 'pi pi-question-circle',
       routerLink: '/admin/faqs',
-    }
+    },
+    {
+      label: 'Ticket Management',
+      icon: 'pi pi-ticket',
+      routerLink: '/admin/tickets',
+    },
   ];
 }

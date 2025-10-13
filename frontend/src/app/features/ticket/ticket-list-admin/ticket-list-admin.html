@@ -1,9 +1,9 @@
 <div class="container mx-auto p-4">
-  <h1 class="text-3xl font-bold m-0">FAQ</h1>
+  <h1 class="text-3xl font-bold m-0">TICKET</h1>
   <div class="flex justify-between items-center my-4">
     <p-button
       type="button"
-      label="Add FAQ"
+      label="Add TICKET"
       icon="pi pi-plus"
       class="p-button-success"
       (click)="openCreateDialog()"
@@ -17,54 +17,54 @@
     <p-table
       stripedRows
       [columns]="cols"
-      [value]="allFaqs"
+      [value]="allTickets"
       [scrollable]="true"
       scrollHeight="500px"
       [rows]="10"
       [virtualScroll]="true"
       [virtualScrollItemSize]="80"
       [lazy]="true"
-      [loading]="faqService.loading()"
+      [loading]="ticketService.loading()"
       (onLazyLoad)="onLazyLoad($event)"
     >
       <ng-template #header let-columns>
         <tr>
-          <th>Question</th>
-          <th>Answer</th>
-          <th class="min-w-48">Category</th>
-          <th class="min-w-32">Created At</th>
-          <th>Actions</th>
+          @for(column of columns; track column) {
+          <th>{{ column.header }}</th>
+          }
         </tr>
       </ng-template>
-      <ng-template let-faq let-columns="columns" pTemplate="body">
+      <ng-template let-ticket let-columns="columns" pTemplate="body">
         <tr class="h-[80px]">
-          <!-- Question Column -->
-          <td>
+          <!-- Title Column -->
+          <td class="min-w-32">
             <div class="font-medium text-900 line-clamp-1 overflow-hidden text-ellipsis">
-              {{ faq.question }}
+              {{ ticket.title }}
             </div>
           </td>
-
-          <!-- Answer Column -->
-          <td>
+          <!-- Description Column -->
+          <td class="min-w-32">
             <div class="text-600 line-clamp-1 overflow-hidden text-ellipsis">
-              {{ faq.answer }}
+              {{ ticket.description }}
             </div>
           </td>
+          <!-- Priority Column -->
+          <td>{{ ticketService.getPriorityLabel(ticket.priority) }}</td>
+          <!-- Status Column -->
+          <td>{{ ticketService.getStatusLabel(ticket.status) }}</td>
 
           <!-- Category Column -->
           <td class="min-w-48">
-            <p-tag [value]="faq.category?.name"></p-tag>
+            <p-tag [value]="ticket.category?.name"></p-tag>
           </td>
-
           <!-- Created At Column -->
           <td class="min-w-32">
-            <div class="text-600 line-clamp-1">
-              {{ faq.created_at | date : 'shortDate' }}
+            <div class="text-600">
+              {{ ticket.created_at | date : 'shortDate' }}
             </div>
           </td>
 
-          <!-- Actions Column (Admin only) -->
+          <!-- Actions Column -->
           <td>
             <div class="flex gap-1">
               <button
@@ -72,9 +72,9 @@
                 pRipple
                 icon="pi pi-pencil"
                 class="p-button-primary p-button-text p-button-sm"
-                pTooltip="Edit FAQ"
+                pTooltip="Edit ticket"
                 tooltipPosition="top"
-                (click)="onEdit(faq)"
+                (click)="onEdit(ticket)"
               ></button>
 
               <div>
@@ -83,9 +83,9 @@
                   pRipple
                   icon="pi pi-trash"
                   class="p-button-danger p-button-text p-button-sm"
-                  pTooltip="Delete FAQ"
+                  pTooltip="Delete ticket"
                   tooltipPosition="top"
-                  (click)="onDelete(faq.id)"
+                  (click)="onDelete(ticket.id)"
                 ></button>
               </div>
             </div>
@@ -95,6 +95,10 @@
     </p-table>
   </div>
 
-  <app-faq-form [(visible)]="showFaqForm" [faq]="selectedFaq" (saved)="onFaqSaved($event)">
-  </app-faq-form>
+  <app-ticket-form
+    [(visible)]="showTicketForm"
+    [ticket]="selectedTicket"
+    (saved)="onTicketSaved($event)"
+  >
+  </app-ticket-form>
 </div>

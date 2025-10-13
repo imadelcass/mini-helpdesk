@@ -17,13 +17,20 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'faqs',
+        redirectTo: 'tickets',
         pathMatch: 'full',
       },
       {
         path: 'faqs',
         loadComponent: () =>
           import('./features/faq/faq-list-admin/faq-list-admin').then((m) => m.FaqListAdmin),
+      },
+      {
+        path: 'tickets',
+        loadComponent: () =>
+          import('./features/ticket/ticket-list-admin/ticket-list-admin').then(
+            (m) => m.TicketListAdmin
+          ),
       },
     ],
   },
