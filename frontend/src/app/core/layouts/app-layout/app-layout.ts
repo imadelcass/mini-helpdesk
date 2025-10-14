@@ -6,8 +6,8 @@ import { ButtonModule } from 'primeng/button';
 @Component({
   selector: 'app-app-layout',
   imports: [RouterOutlet, AvatarModule, ButtonModule],
-  templateUrl: './app-layout.html'
+  templateUrl: './app-layout.html',
 })
 export class AppLayout {
-
+  currentYear: number = new Date().getFullYear();
 }
