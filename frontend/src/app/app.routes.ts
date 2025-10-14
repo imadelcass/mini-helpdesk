@@ -42,13 +42,20 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'faqs',
+        redirectTo: 'tickets',
         pathMatch: 'full',
       },
       {
         path: 'faqs',
         loadComponent: () =>
           import('./features/faq/faq-list-public/faq-list-public').then((m) => m.FaqListPublic),
+      },
+      {
+        path: 'tickets',
+        loadComponent: () =>
+          import('./features/ticket/ticket-list-public/ticket-list-public').then(
+            (m) => m.TicketListPublic
+          ),
       },
     ],
   },

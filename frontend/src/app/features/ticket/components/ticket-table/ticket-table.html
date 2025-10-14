@@ -1,0 +1,64 @@
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col ">
+  <!-- Column Header -->
+  <div
+    class="px-4 py-3 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-blue-50 to-transparent rounded-t-xl"
+  >
+    <h2 class="text-lg font-semibold text-gray-800 tracking-tight">
+      {{ status.label }}
+    </h2>
+    <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+      {{ tickets()?.length || 0 }}
+    </span>
+  </div>
+
+  <!-- Tickets List -->
+  <div class="flex-1 overflow-y-auto p-3 space-y-3">
+    <p-table
+      [value]="tickets()"
+      [scrollable]="false"
+      scrollHeight="500px"
+      [rows]="10"
+      [virtualScroll]="true"
+      [virtualScrollItemSize]="90"
+      [lazy]="true"
+      [loading]="loading()"
+      (onLazyLoad)="onLazyLoad($event)"
+    >
+      <ng-template pTemplate="body" let-ticket>
+        <tr>
+          <td>
+            <div
+              class="p-4 bg-gray-50 hover:bg-white hover:shadow-md border border-gray-100 rounded-xl transition-all cursor-pointer"
+              (click)="onTicketClicked(ticket.id)"
+            >
+              <div class="flex items-center justify-between mb-2">
+                <span class="font-semibold text-gray-800 text-sm">
+                  #{{ ticket.id }} – {{ ticket.title }}
+                </span>
+                <span
+                  class="text-xs font-medium px-2 py-0.5 rounded-full"
+                  [ngClass]="{
+                    'bg-yellow-100 text-yellow-700': ticket.status === 1,
+                    'bg-gray-100 text-gray-700': ticket.status === 2,
+                    'bg-green-100 text-green-700': ticket.status === 3
+                  }"
+                >
+                  {{ ticket.status }}
+                </span>
+              </div>
+
+              <p class="text-sm text-gray-600 line-clamp-2">
+                {{ ticket.description }}
+              </p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<app-ticket-detail
+  [ticketId]="selectedTicketId"
+  [(visible)]="showTicketDetailDialog"
+></app-ticket-detail>

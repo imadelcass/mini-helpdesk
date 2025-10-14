@@ -1,0 +1,5 @@
+<div class="grid grid-cols-1 md:grid-cols-3 gap-5 p-5 bg-gray-50 min-h-screen">
+  @for (status of ticketService.getStatuses(); track status.value) {
+    <app-ticket-table [status]="status"></app-ticket-table>
+  }
+</div>
