@@ -19,13 +19,13 @@
       scrollHeight="500px"
       [rows]="10"
       [virtualScroll]="true"
-      [virtualScrollItemSize]="90"
+      [virtualScrollItemSize]="140"
       [lazy]="true"
       [loading]="loading()"
       (onLazyLoad)="onLazyLoad($event)"
     >
       <ng-template pTemplate="body" let-ticket>
-        <tr>
+        <tr class="h-[140px]">
           <td>
             <div
               class="p-4 bg-gray-50 hover:bg-white hover:shadow-md border border-gray-100 rounded-xl transition-all cursor-pointer"
