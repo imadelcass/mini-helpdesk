@@ -2,10 +2,11 @@ import { Component, signal } from '@angular/core';
 import { Auth } from '../../../core/services/auth';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule],
+  imports: [FormsModule, ButtonModule],
   templateUrl: './login.html',
 })
 export class Login {
