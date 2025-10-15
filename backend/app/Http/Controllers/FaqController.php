@@ -9,6 +9,7 @@ use App\Models\FaqCategory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
+use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class FaqController extends Controller
@@ -24,7 +25,26 @@ class FaqController extends Controller
             QueryBuilder::for(Faq::class)
                 ->select(['id', 'question', 'answer', 'faq_category_id', 'created_at'])
                 ->with(['category:id,name'])
-                ->allowedFilters(['question', 'answer', 'category.name'])
+                ->allowedFilters(
+                    [
+                        'question',
+                        'answer',
+                        AllowedFilter::callback(
+                            'category',
+                            function ($query, $category) {
+                                $query->whereHas('category', function ($query) use ($category) {
+                                    $query->where('name', 'like', "%{$category}%");
+                                });
+                            }
+                        ),
+                        AllowedFilter::callback('global', function ($query, $user) {
+                            $query
+                                ->where('question', 'like', "%{$user}%")
+                                ->orWhere('answer', 'like', "%{$user}%");
+                        }),
+                    ]
+                )
+                ->allowedSorts(['question', 'answer', 'created_at'])
                 ->defaultSort('-created_at')
                 ->paginate(...__paginate($request))
         );

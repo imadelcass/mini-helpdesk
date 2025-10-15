@@ -1,7 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FaqService } from '../../../core/services/faq-service';
-import { TableModule, TableLazyLoadEvent } from 'primeng/table';
+import { TableModule, TableLazyLoadEvent, TableFilterEvent } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -15,6 +15,9 @@ import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { DividerModule } from 'primeng/divider';
 import { FaqForm } from '../components/faq-form/faq-form';
 import { ConfirmationService } from 'primeng/api';
+import { ParsedTableEvent, TableHelperService } from '@core/services/table-helper.service';
+import { SelectModule } from 'primeng/select';
+
 @Component({
   selector: 'app-faq-list-admin',
   standalone: true,
@@ -34,6 +37,7 @@ import { ConfirmationService } from 'primeng/api';
     DividerModule,
     FaqForm,
     ConfirmPopupModule,
+    SelectModule,
   ],
   templateUrl: './faq-list-admin.html',
 })
@@ -41,59 +45,70 @@ export class FaqListAdmin implements OnInit {
   search = signal('');
   category = signal('');
   searchQuery = signal('');
-  payload = signal({ 'page[currentPage]': 1 });
   showFaqForm = false;
   selectedFaq?: any;
-  allFaqs!: any[];
+  allFaqs = signal<any[]>([]);
+  isInitialized = signal(false);
 
-  constructor(public faqService: FaqService, public authService: Auth) {}
+  constructor(
+    public faqService: FaqService,
+    public authService: Auth,
+    private tableHelper: TableHelperService
+  ) {}
+
   ngOnInit(): void {
     // Fetch FAQS categories
     this.faqService.fetchCategories().subscribe();
+  }
 
-    this.fetchFaqs().add(() => {
-      this.allFaqs = [
-        ...this.faqService.faqs(),
-        ...Array.from({ length: this.faqService.totalRecords() - this.faqService.faqs().length }),
-      ];
+  fetchData(parsedEvent: ParsedTableEvent) {
+    this.faqService.fetch(parsedEvent).subscribe(() => {
+      if (!this.isInitialized()) {
+        this.initializeVirtualScrollData();
+        this.isInitialized.set(true);
+      }
+      this.updateFaqData(parsedEvent);
     });
   }
 
+  initializeVirtualScrollData() {
+    const totalRecords = this.faqService.totalRecords();
+    const placeholderArray = Array.from({ length: totalRecords }, () => ({}));
+
+    this.allFaqs.set(placeholderArray);
+  }
+
+  private updateFaqData(parsedEvent: ParsedTableEvent) {
+    const currentFaqs = this.allFaqs();
+    const newlyFetchedFaqs = this.faqService.faqs();
+
+    const updatedFaqs = [...currentFaqs];
+
+    const startIndex = (parsedEvent.page.currentPage - 1) * newlyFetchedFaqs.length;
+
+    updatedFaqs.splice(startIndex, newlyFetchedFaqs.length, ...newlyFetchedFaqs);
+
+    this.allFaqs.set(updatedFaqs);
+  }
+
   onLazyLoad(event: TableLazyLoadEvent) {
-    const currentPage = event.first! / event.rows! + 1;
+    const parsedEvent = this.tableHelper.parseTableEvent(event);
+    this.fetchData(parsedEvent);
+  }
 
-    if (!isNaN(currentPage) && currentPage != 1) {
-      this.payload.set({
-        ...this.payload(),
-        'page[currentPage]': currentPage,
-      });
-
-      // Update the data
-      this.fetchFaqs().add(() => {
-        this.allFaqs = [
-          ...this.allFaqs.slice(0, event.first!),
-          ...this.faqService.faqs(),
-          ...this.allFaqs.slice(event.first! + event.rows!),
-        ];
-      });
-    }
+  onFilter($event: TableFilterEvent) {
+    this.isInitialized.set(false);
   }
 
   cols = [
-    { field: 'question', header: 'Question' },
-    { field: 'answer', header: 'Answer' },
+    { field: 'question', header: 'Question', isSortable: true },
+    { field: 'answer', header: 'Answer', isSortable: true },
     { field: 'category', header: 'Category' },
-    { field: 'created_at', header: 'Created At' },
-    { field: 'actions', header: 'Actions' },
+    { field: 'created_at', header: 'Created At', isSortable: true },
+    { field: 'actions', header: 'Actions', isFrozen: true, alignFrozen: 'right' },
   ];
 
-  fetchFaqs() {
-    return this.faqService.fetch(this.payload()).subscribe();
-  }
-
-  onSearch(): void {
-    // this.fetchFaqs();
-  }
+  onSearch(): void {}
 
   openCreateDialog(): void {
     this.selectedFaq = undefined;
@@ -106,11 +121,13 @@ export class FaqListAdmin implements OnInit {
   }
 
   onDelete(faqId: number): void {
-    this.faqService.delete(faqId).subscribe();
+    this.faqService.delete(faqId).subscribe(() => {
+      this.fetchData({} as ParsedTableEvent);
+    });
   }
 
-  onFaqSaved(savedFaq: any): void {
+  onFaqSaved(): void {
     // Refresh your FAQ list
-    console.log('FAQ saved:', savedFaq);
+    this.fetchData({} as ParsedTableEvent);
   }
 }

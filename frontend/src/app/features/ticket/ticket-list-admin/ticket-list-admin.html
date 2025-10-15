@@ -32,6 +32,7 @@
       [lazy]="true"
       (onLazyLoad)="onLazyLoad($event)"
       (onFilter)="onFilter($event)"
+      [loading]="ticketService.loading()"
     >
       <ng-template #header let-columns>
         <tr>
@@ -45,7 +46,7 @@
           >
             {{ column.header }}
             @if(column.isSortable) {
-              <p-sortIcon field="code" />
+            <p-sortIcon field="code" />
             }
           </th>
           }
@@ -93,6 +94,7 @@
                   (onChange)="filter($event.value)"
                   optionLabel="name"
                   optionValue="name"
+                  [showClear]="true"
                 ></p-select>
               </ng-template>
             </p-columnFilter>
@@ -151,7 +153,7 @@
                   class="p-button-danger p-button-text p-button-sm"
                   pTooltip="Delete ticket"
                   tooltipPosition="top"
-                  (click)="onDelete(dt, ticket.id)"
+                  (click)="onDelete(ticket.id)"
                 ></button>
               </div>
             </div>

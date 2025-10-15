@@ -3,6 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { FaqCategoryModel, FaqModel } from '@shared/models/faq.model';
 import { catchError, finalize, map, Observable, of, tap } from 'rxjs';
 import { PaginatedResponse } from '@shared/models/paginated-response';
+import { ParamsService } from './params.service';
 
 @Injectable({ providedIn: 'root' })
 export class FaqService {
@@ -13,16 +14,22 @@ export class FaqService {
   categories = signal<FaqCategoryModel[]>([]);
   loading = signal(false);
 
+  constructor(public paramsService: ParamsService) {}
+
   fetch(params: {}): Observable<PaginatedResponse<FaqModel>> {
     this.loading.set(true);
-    return this.http.get<PaginatedResponse<FaqModel>>('faqs', { params }).pipe(
-      tap((response: PaginatedResponse<FaqModel>) => {
-        this.totalRecords.set(response.meta.total);
-        this.faqs.set(response.data);
-        this.loading.set(false);
-      }),
-      finalize(() => this.loading.set(false))
-    );
+    return this.http
+      .get<PaginatedResponse<FaqModel>>('faqs', {
+        params: this.paramsService.toHttpParams(params),
+      })
+      .pipe(
+        tap((response: PaginatedResponse<FaqModel>) => {
+          this.totalRecords.set(response.meta.total);
+          this.faqs.set(response.data);
+          this.loading.set(false);
+        }),
+        finalize(() => this.loading.set(false))
+      );
   }
 
   fetchCategories(): Observable<FaqCategoryModel[]> {

@@ -8,45 +8,87 @@
       class="p-button-success"
       (click)="openCreateDialog()"
     ></p-button>
-    <input pInputText type="text" placeholder="Search..." class="mr-2" [(ngModel)]="searchQuery" />
+    <input
+      pInputText
+      type="text"
+      (input)="dt.filterGlobal($event.target.value, 'contains')"
+      placeholder="Search keyword"
+    />
   </div>
 
   <p-divider></p-divider>
 
   <div class="card">
     <p-table
+      #dt
       stripedRows
       [columns]="cols"
-      [value]="allFaqs"
+      [value]="allFaqs()"
       [scrollable]="true"
-      scrollHeight="500px"
+      scrollHeight="600px"
       [rows]="10"
       [virtualScroll]="true"
-      [virtualScrollItemSize]="80"
+      [virtualScrollItemSize]="120"
       [lazy]="true"
-      [loading]="faqService.loading()"
       (onLazyLoad)="onLazyLoad($event)"
+      (onFilter)="onFilter($event)"
+      [loading]="faqService.loading()"
     >
       <ng-template #header let-columns>
         <tr>
-          <th>Question</th>
-          <th>Answer</th>
-          <th class="min-w-48">Category</th>
-          <th class="min-w-32">Created At</th>
-          <th>Actions</th>
+          @for(column of columns; track column) {
+          <th
+            [pSortableColumn]="column.field"
+            [pSortableColumnDisabled]="!column.isSortable"
+            pFrozenColumn
+            [frozen]="column.isFrozen"
+            [alignFrozen]="column.alignFrozen"
+          >
+            {{ column.header }}
+            @if(column.isSortable) {
+              <p-sortIcon [field]="column.field" />
+            }
+          </th>
+          }
+        </tr>
+
+        <tr>
+          <th>
+            <p-columnFilter type="text" field="question" [showMenu]="false"></p-columnFilter>
+          </th>
+          <th>
+            <p-columnFilter type="text" field="answer" [showMenu]="false"></p-columnFilter>
+          </th>
+          <th>
+            <p-columnFilter field="category" matchMode="equals" [showMenu]="false">
+              <ng-template #filter let-value let-filter="filterCallback">
+                <p-select
+                  id="category"
+                  [options]="faqService.categories()"
+                  (onChange)="filter($event.value)"
+                  optionLabel="name"
+                  optionValue="name"
+                  [showClear]="true"
+                ></p-select>
+              </ng-template>
+            </p-columnFilter>
+          </th>
+          <th></th>
+          <th></th>
         </tr>
       </ng-template>
+
       <ng-template let-faq let-columns="columns" pTemplate="body">
-        <tr class="h-[80px]">
+        <tr class="h-[120px]">
           <!-- Question Column -->
-          <td>
+          <td class="min-w-32">
             <div class="font-medium text-900 line-clamp-1 overflow-hidden text-ellipsis">
               {{ faq.question }}
             </div>
           </td>
 
           <!-- Answer Column -->
-          <td>
+          <td class="min-w-32">
             <div class="text-600 line-clamp-1 overflow-hidden text-ellipsis">
               {{ faq.answer }}
             </div>
@@ -59,13 +101,13 @@
 
           <!-- Created At Column -->
           <td class="min-w-32">
-            <div class="text-600 line-clamp-1">
+            <div class="text-600">
               {{ faq.created_at | date : 'shortDate' }}
             </div>
           </td>
 
-          <!-- Actions Column (Admin only) -->
-          <td>
+          <!-- Actions Column -->
+          <td pFrozenColumn [frozen]="true" alignFrozen="right">
             <div class="flex gap-1">
               <button
                 pButton
@@ -95,6 +137,6 @@
     </p-table>
   </div>
 
-  <app-faq-form [(visible)]="showFaqForm" [faq]="selectedFaq" (saved)="onFaqSaved($event)">
+  <app-faq-form [(visible)]="showFaqForm" [faq]="selectedFaq" (saved)="onFaqSaved()">
   </app-faq-form>
 </div>
