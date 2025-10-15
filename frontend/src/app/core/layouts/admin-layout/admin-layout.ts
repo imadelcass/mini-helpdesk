@@ -17,7 +17,7 @@ export class AdminLayout {
     {
       label: 'Dashboard',
       icon: 'pi pi-home',
-      routerLink: '/dashboard',
+      routerLink: '/',
     },
     {
       separator: true,
