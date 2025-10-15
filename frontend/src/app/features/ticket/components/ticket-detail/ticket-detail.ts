@@ -1,7 +1,7 @@
-import { Component, computed, inject, Input, model, signal } from '@angular/core';
+import { Component, inject, Input, model, signal } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
-import { TicketService } from '../../../../core/services/ticket-service';
-import { TicketCommentModel, TicketModel } from '../../../../app/shared/models/ticket.model';
+import { TicketService } from '@core/services/ticket-service';
+import { TicketCommentModel, TicketModel } from '@shared/models/ticket.model';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';

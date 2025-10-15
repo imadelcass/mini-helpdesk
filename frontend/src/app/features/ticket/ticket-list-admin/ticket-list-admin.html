@@ -8,34 +8,100 @@
       class="p-button-success"
       (click)="openCreateDialog()"
     ></p-button>
-    <input pInputText type="text" placeholder="Search..." class="mr-2" [(ngModel)]="searchQuery" />
+    <input
+      pInputText
+      type="text"
+      (input)="dt.filterGlobal($event.target.value, 'contains')"
+      placeholder="Search keyword"
+    />
   </div>
 
   <p-divider></p-divider>
 
   <div class="card">
     <p-table
+      #dt
       stripedRows
       [columns]="cols"
-      [value]="allTickets"
+      [value]="allTickets()"
       [scrollable]="true"
-      scrollHeight="500px"
+      scrollHeight="600px"
       [rows]="10"
       [virtualScroll]="true"
-      [virtualScrollItemSize]="80"
+      [virtualScrollItemSize]="120"
       [lazy]="true"
-      [loading]="ticketService.loading()"
       (onLazyLoad)="onLazyLoad($event)"
+      (onFilter)="onFilter($event)"
     >
       <ng-template #header let-columns>
         <tr>
           @for(column of columns; track column) {
-          <th>{{ column.header }}</th>
+          <th
+            [pSortableColumn]="column.field"
+            [pSortableColumnDisabled]="!column.isSortable"
+            pFrozenColumn
+            [frozen]="column.isFrozen"
+            [alignFrozen]="column.alignFrozen"
+          >
+            {{ column.header }}
+            @if(column.isSortable) {
+              <p-sortIcon field="code" />
+            }
+          </th>
           }
         </tr>
+
+        <tr>
+          <th>
+            <p-columnFilter type="text" field="title" [showMenu]="false"></p-columnFilter>
+          </th>
+          <th>
+            <p-columnFilter type="text" field="description" [showMenu]="false"></p-columnFilter>
+          </th>
+          <th>
+            <p-columnFilter field="priority" matchMode="equals" [showMenu]="false">
+              <ng-template #filter let-value let-filter="filterCallback">
+                <p-select
+                  [options]="ticketService.getPriorities()"
+                  (onChange)="filter($event.value)"
+                  optionLabel="label"
+                  optionValue="value"
+                >
+                </p-select>
+              </ng-template>
+            </p-columnFilter>
+          </th>
+          <th>
+            <p-columnFilter field="status" matchMode="equals" [showMenu]="false">
+              <ng-template #filter let-value let-filter="filterCallback">
+                <p-select
+                  id="status"
+                  [options]="ticketService.getStatuses()"
+                  (onChange)="filter($event.value)"
+                  optionLabel="label"
+                  optionValue="value"
+                ></p-select>
+              </ng-template>
+            </p-columnFilter>
+          </th>
+          <th>
+            <p-columnFilter field="category" matchMode="equals" [showMenu]="false">
+              <ng-template #filter let-value let-filter="filterCallback">
+                <p-select
+                  id="category"
+                  [options]="ticketService.categories()"
+                  (onChange)="filter($event.value)"
+                  optionLabel="name"
+                  optionValue="name"
+                ></p-select>
+              </ng-template>
+            </p-columnFilter>
+          </th>
+        </tr>
       </ng-template>
+
       <ng-template let-ticket let-columns="columns" pTemplate="body">
-        <tr class="h-[80px]">
+        <tr class="h-[120px]">
           <!-- Title Column -->
           <td class="min-w-32">
             <div class="font-medium text-900 line-clamp-1 overflow-hidden text-ellipsis">
@@ -65,7 +131,7 @@
           </td>
 
           <!-- Actions Column -->
-          <td>
+          <td pFrozenColumn [frozen]="true" alignFrozen="right">
             <div class="flex gap-1">
               <button
                 pButton
@@ -85,7 +151,7 @@
                   class="p-button-danger p-button-text p-button-sm"
                   pTooltip="Delete ticket"
                   tooltipPosition="top"
-                  (click)="onDelete(ticket.id)"
+                  (click)="onDelete(dt, ticket.id)"
                 ></button>
               </div>
             </div>
@@ -95,10 +161,6 @@
     </p-table>
   </div>
 
-  <app-ticket-form
-    [(visible)]="showTicketForm"
-    [ticket]="selectedTicket"
-    (saved)="onTicketSaved($event)"
-  >
+  <app-ticket-form [(visible)]="showTicketForm" [ticket]="selectedTicket" (saved)="onTicketSaved()">
   </app-ticket-form>
 </div>

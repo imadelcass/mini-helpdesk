@@ -2,9 +2,9 @@ import { Component, EventEmitter, inject, Input, model, Output } from '@angular/
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
-import { TicketModel } from '../../../../app/shared/models/ticket.model';
+import { TicketModel } from '@shared/models/ticket.model';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TicketService } from '../../../../core/services/ticket-service';
+import { TicketService } from '@core/services/ticket-service';
 
 @Component({
   selector: 'app-ticket-form',
@@ -18,7 +18,6 @@ export class TicketForm {
   @Input()
   set ticket(value: TicketModel | undefined) {
     this._ticket = value;
-    // This runs every time ticket input changes
     if (value) {
       this.ticketForm.patchValue(value);
     } else {
@@ -68,15 +67,12 @@ export class TicketForm {
 
     saveObservable.subscribe((success) => {
       if (success) {
-        this.saved.emit(ticketData);
+        this.saved.emit();
         this.visible.update(() => false);
-      } else {
-        console.error('Failed to save ticket');
       }
     });
   }
 
-  // Helper methods for template validation
   isFieldInvalid(fieldName: string): boolean {
     const field = this.ticketForm.get(fieldName);
     return !!(field && field.invalid && (field.dirty || field.touched));

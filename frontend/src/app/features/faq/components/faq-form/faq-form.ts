@@ -2,9 +2,9 @@ import { Component, EventEmitter, inject, Input, model, Output } from '@angular/
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
-import { FaqModel } from '../../../../app/shared/models/faq.model';
+import { FaqModel } from '@shared/models/faq.model';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { FaqService } from '../../../../core/services/faq-service';
+import { FaqService } from '@core/services/faq-service';
 
 @Component({
   selector: 'app-faq-form',
@@ -18,7 +18,6 @@ export class FaqForm {
   @Input()
   set faq(value: FaqModel | undefined) {
     this._faq = value;
-    // This runs every time faq input changes
     if (value) {
       console.log('FAQ received in form:', value);
       this.faqForm.patchValue(value);
@@ -70,9 +69,6 @@ export class FaqForm {
       if (success) {
         this.saved.emit(faqData);
         this.visible.update(() => false);
-      } else {
-        // Handle error (e.g., show a notification)
-        console.error('Failed to save FAQ');
       }
     });
   }

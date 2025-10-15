@@ -1,14 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { catchError, finalize, map, Observable, of, tap } from 'rxjs';
-import { PaginatedResponse } from '../../app/shared/models/paginated-response';
-import {
-  TicketModel,
-  TicketCategoryModel,
-  TicketCommentModel,
-} from '../../app/shared/models/ticket.model';
-import { TicketStatusEnum, TicketStatusLabels } from '../../app/shared/enums/ticket-status';
-import { TicketPriorityEnum, TicketPriorityLabels } from '../../app/shared/enums/ticket-priority';
+import { PaginatedResponse } from '@shared/models/paginated-response';
+import { TicketModel, TicketCategoryModel, TicketCommentModel } from '@shared/models/ticket.model';
+import { TicketStatusEnum, TicketStatusLabels } from '@shared/enums/ticket-status';
+import { TicketPriorityEnum, TicketPriorityLabels } from '@shared/enums/ticket-priority';
+import { ParamsService } from './params.service';
 
 @Injectable({ providedIn: 'root' })
 export class TicketService {
@@ -20,6 +17,8 @@ export class TicketService {
   categories = signal<TicketCategoryModel[]>([]);
   loading = signal(false);
 
+  constructor(public paramsService: ParamsService) {}
+
   getStatusLabel(value: TicketStatusEnum): string {
     return TicketStatusLabels[value];
   }
@@ -30,27 +29,32 @@ export class TicketService {
 
   getStatuses() {
     return Object.entries(TicketStatusLabels).map(([value, label]) => ({
-      value: value,
+      value: Number(value),
       label: label,
     }));
   }
 
   getPriorities() {
     return Object.entries(TicketPriorityLabels).map(([value, label]) => ({
-      value: value,
+      value: Number(value),
       label: label,
     }));
   }
-  fetch(params: {}): Observable<PaginatedResponse<TicketModel>> {
+  fetch(params = {}): Observable<PaginatedResponse<TicketModel>> {
     this.loading.set(true);
-    return this.http.get<PaginatedResponse<TicketModel>>('tickets', { params }).pipe(
-      tap((response: PaginatedResponse<TicketModel>) => {
-        this.totalRecords.set(response.meta.total);
-        this.tickets.set(response.data);
-        this.loading.set(false);
-      }),
-      finalize(() => this.loading.set(false))
-    );
+
+    return this.http
+      .get<PaginatedResponse<TicketModel>>('tickets', {
+        params: this.paramsService.toHttpParams(params),
+      })
+      .pipe(
+        tap((response: PaginatedResponse<TicketModel>) => {
+          this.totalRecords.set(response.meta.total);
+          this.tickets.set(response.data);
+          this.loading.set(false);
+        }),
+        finalize(() => this.loading.set(false))
+      );
   }
   fetchById(id: number): Observable<TicketModel> {
     return this.http.get<TicketModel>(`tickets/${id}`).pipe(

@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { FaqCategoryModel, FaqModel } from '../../app/shared/models/faq.model';
+import { FaqCategoryModel, FaqModel } from '@shared/models/faq.model';
 import { catchError, finalize, map, Observable, of, tap } from 'rxjs';
-import { PaginatedResponse } from '../../app/shared/models/paginated-response';
+import { PaginatedResponse } from '@shared/models/paginated-response';
 
 @Injectable({ providedIn: 'root' })
 export class FaqService {
