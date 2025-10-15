@@ -120,7 +120,7 @@ export class TicketListAdmin implements OnInit {
     this.showTicketForm = true;
   }
 
-  onDelete(dt: any, ticketId: number): void {
+  onDelete(ticketId: number): void {
     this.ticketService.delete(ticketId).subscribe(() => {
       this.fetchData({} as ParsedTableEvent);
     });
