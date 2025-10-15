@@ -2,16 +2,19 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Ticket;
+use App\Models\TicketComment;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class StoreTicketCommentRequest extends FormRequest
+class TicketCommentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +25,8 @@ class StoreTicketCommentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'content' => ['required', 'string', 'max:255'],
+            'parent_id' => ['nullable', 'integer', Rule::exists(TicketComment::class, 'id')],
         ];
     }
 }

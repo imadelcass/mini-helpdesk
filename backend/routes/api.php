@@ -27,5 +27,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('ticket-categories', [TicketController::class, 'categories']);
 
     // Ticket comment management routes
-    Route::apiResource('ticket-comments', TicketCommentController::class);
+    Route::post('tickets/{ticket}/comments', [TicketCommentController::class, 'store']);
+    Route::apiResource('ticket-comments', TicketCommentController::class)->only('update', 'destroy');
 });

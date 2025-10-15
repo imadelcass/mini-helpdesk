@@ -9,6 +9,7 @@ use App\Models\TicketCategory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
+use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class TicketController extends Controller
@@ -20,16 +21,33 @@ class TicketController extends Controller
     {
         $tickets = Ticket::query();
 
-        // if (auth()->user()->isUser()) {
-        //     $tickets->where('user_id', auth()->id());
-        // }
+        if (auth()->user()->isUser()) {
+            $tickets->where('user_id', auth()->id());
+        }
 
         return TicketResource::collection(
             QueryBuilder::for($tickets)
                 ->select(['id', 'title', 'description', 'priority', 'status', 'user_id', 'ticket_category_id', 'created_at', 'updated_at'])
-                ->with(['category:id,name'])
-                ->allowedFilters(['title', 'description', 'priority', 'status'])
-                ->allowedSorts(['title', 'description', 'priority', 'status'])
+                ->with(['category:id,name', 'comments:id,ticket_id,content,created_at'])
+                ->allowedFilters([
+                    'title',
+                    'description',
+                    'priority',
+                    'status',
+                    AllowedFilter::callback('category', function ($query, $category) {
+                        $query->whereHas('category', function ($query) use ($category) {
+                            $query->where('name', 'like', "%{$category}%");
+                        });
+                    }),
+                    AllowedFilter::callback('global', function ($query, $user) {
+                        $query
+                            ->where('title', 'like', "%{$user}%")
+                            ->orWhere('description', 'like', "%{$user}%")
+                            ->orWhere('priority', 'like', "%{$user}%")
+                            ->orWhere('status', 'like', "%{$user}%");
+                    }),
+                ])
+                ->allowedSorts(['title', 'description', 'priority', 'status', 'created_at'])
                 ->defaultSort('-created_at')
                 ->paginate(...__paginate($request))
         );
@@ -54,7 +72,7 @@ class TicketController extends Controller
     {
         Gate::authorize('view', $ticket);
 
-        return response()->json($ticket);
+        return response()->json($ticket->load(['category:id,name', 'comments:id,ticket_id,content,created_at']));
     }
 
     /**

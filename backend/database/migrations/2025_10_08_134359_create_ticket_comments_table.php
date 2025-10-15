@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('content');
             $table->foreignIdFor(User::class)->constrained();
             $table->foreignIdFor(Ticket::class)->constrained();
-            $table->foreignIdFor(TicketComment::class, 'parent_id')->constrained();
+            $table->foreignIdFor(TicketComment::class, 'parent_id')->nullable()->constrained();
             $table->timestamps();
         });
     }

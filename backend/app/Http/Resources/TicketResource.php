@@ -23,6 +23,7 @@ class TicketResource extends JsonResource
             'user_id' => $this->user_id,
             'ticket_category_id' => $this->ticket_category_id,
             'category' => $this->whenLoaded('category'),
+            'comments' => $this->whenLoaded('comments'),
             'created_at' => $this->created_at,
         ];
     }
