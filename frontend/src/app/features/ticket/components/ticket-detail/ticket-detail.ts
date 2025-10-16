@@ -1,4 +1,4 @@
-import { Component, inject, Input, model, signal } from '@angular/core';
+import { Component, computed, inject, Input, model, signal } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 import { TicketService } from '@core/services/ticket-service';
 import { TicketCommentModel, TicketModel } from '@shared/models/ticket.model';

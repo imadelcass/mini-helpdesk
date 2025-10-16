@@ -11,9 +11,6 @@
           <span class="w-2 h-2 bg-red-500 rounded-full"></span>
           <span class="font-medium text-gray-700">{{ ticket()?.priority }}</span>
         </span>
-        <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
-          {{ 'Closed' }}
-        </span>
         <span class="text-gray-500 text-xs">
           {{ ticket()?.created_at | date : 'medium' }}
         </span>
