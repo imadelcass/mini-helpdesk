@@ -5,6 +5,7 @@ import { TicketCommentModel, TicketModel } from '@shared/models/ticket.model';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
+import { Auth } from '@core/services/auth';
 
 @Component({
   selector: 'app-ticket-detail',
@@ -22,6 +23,8 @@ export class TicketDetail {
     this.fetchTicket(value);
   }
 
+  constructor(public authService: Auth) {}
+
   fetchTicket(id: number): void {
     if (!id) return;
     this.ticketService
@@ -35,6 +38,13 @@ export class TicketDetail {
   onCancel(): void {
     this.visible.update(() => false);
   }
+
+  canAddComment() {
+    return this.authService.isAdmin() 
+    || this.authService.isAgent()
+    || (this.authService.isUser() && this.ticket()?.user_id === this.authService.currentUser().id);
+  }
+
   addComment() {
     const comment = {
       content: this.newComment,

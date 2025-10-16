@@ -41,6 +41,7 @@
       </div>
 
       <!-- Add Comment -->
+      @if(canAddComment()) {
       <div class="mt-4 space-y-3">
         <textarea
           [(ngModel)]="newComment"
@@ -56,6 +57,7 @@
           Post Comment
         </button>
       </div>
+      }
     </div>
   </ng-container>
   }
