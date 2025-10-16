@@ -17,7 +17,7 @@
           label="FAQs"
           icon="pi pi-question-circle"
           routerLink="/faqs"
-          class="p-button-outlined"
+          [ngClass]="{ 'p-button-outlined': this.router.url !== '/faqs' }"
           aria-label="Go to FAQs"
         ></a>
 
@@ -27,7 +27,7 @@
           label="My Tickets"
           icon="pi pi-ticket"
           routerLink="/tickets"
-          class="p-button-outlined"
+          [ngClass]="{ 'p-button-outlined': this.router.url !== '/tickets' }"
           aria-label="View your tickets"
         ></a>
 
@@ -41,6 +41,7 @@
             label="Admin"
             icon="pi pi-user"
             routerLink="/admin"
+            class="p-button-outlined"
             aria-label="Go to Admin panel"
           ></a>
         </ng-container>
