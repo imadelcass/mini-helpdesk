@@ -54,5 +54,21 @@
         Se connecter
       </p-button>
     </form>
+    <div class="mt-8 pt-6 border-t border-gray-200">
+      <div class="flex items-center gap-2 mb-4 text-sm font-semibold text-gray-700">
+        <i class="pi pi-info-circle text-blue-500"></i> Comptes de démonstration
+      </div>
+
+      <div class="grid grid-cols-3 gap-2">
+        @for (user of dummyUsers; track user.email) {
+        <div
+          class="p-2 mb-2 rounded-lg border border-gray-200 bg-gray-50 hover:bg-white hover:shadow transition cursor-pointer"
+          (click)="fillCredentials(user.email, user.password)"
+        >
+          <p class="text-center">{{ user.role }}</p>
+        </div>
+        }
+      </div>
+    </div>
   </div>
 </div>
