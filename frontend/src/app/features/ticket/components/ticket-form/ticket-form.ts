@@ -67,7 +67,7 @@ export class TicketForm {
 
     saveObservable.subscribe((success) => {
       if (success) {
-        this.saved.emit();
+        this.saved.emit(ticketData);
         this.visible.update(() => false);
       }
     });

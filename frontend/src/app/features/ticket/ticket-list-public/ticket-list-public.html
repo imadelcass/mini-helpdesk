@@ -1,5 +1,26 @@
-<div class="grid grid-cols-1 md:grid-cols-3 gap-5 p-5 bg-gray-50 min-h-screen">
-  @for (status of ticketService.getStatuses(); track status.value) {
-    <app-ticket-table [status]="status"></app-ticket-table>
+<div class="px-5 bg-gray-50 min-h-screen">
+  <!-- Create Ticket -->
+  @if(authService.isAdmin() || authService.isUser()) {
+  <div class="flex justify-end mb-5">
+    <p-button
+      label="Create Ticket"
+      size="small"
+      icon="pi pi-plus"
+      class="p-button-outlined"
+      (click)="openCreateDialog()"
+    />
+  </div>
   }
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+    @for (status of ticketService.getStatuses(); track status.value) {
+    <app-ticket-table #datatable [status]="status"></app-ticket-table>
+  }
+  </div>
 </div>
+
+<app-ticket-form
+  [(visible)]="showTicketForm"
+  [ticket]="selectedTicket"
+  (saved)="onTicketSaved($event)"
+>
+</app-ticket-form>
