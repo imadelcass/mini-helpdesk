@@ -9,6 +9,7 @@ import { TicketForm } from '../ticket-form/ticket-form';
 import { TicketModel } from '@shared/models/ticket.model';
 import { Auth } from '@core/services/auth';
 import { TicketStatusEnum } from '@shared/enums/ticket-status';
+import { TicketPriorityEnum } from '@shared/enums/ticket-priority';
 
 @Component({
   selector: 'app-ticket-table',
@@ -110,8 +111,8 @@ export class TicketTable implements OnInit {
   }
 
   public onTicketSaved() {
-    console.log("onTicketSaved called", this.status);
-    
+    console.log('onTicketSaved called', this.status);
+
     this.showTicketForm = false;
     this.fetchData();
   }
@@ -123,9 +124,22 @@ export class TicketTable implements OnInit {
 
   onDeleteTicket(ticket: TicketModel) {
     this.ticketService.delete(ticket.id).subscribe(() => {
-      console.log("onDeleteTicket called");
-      
+      console.log('onDeleteTicket called');
+
       this.fetchData();
     });
+  }
+
+  getTicketPriorityClass(ticket: any) {        
+    switch (ticket.priority) {
+      case TicketPriorityEnum.LOW:
+        return 'text-yellow-700 border border-yellow-200 bg-yellow-50';
+      case TicketPriorityEnum.MEDIUM:
+        return 'text-blue-700 border border-blue-200 bg-blue-50';
+      case TicketPriorityEnum.HIGH:
+        return 'text-red-700 border border-red-200 bg-red-50';
+      default:
+        return '';
+    }
   }
 }

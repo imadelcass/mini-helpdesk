@@ -4,6 +4,7 @@ export interface TicketModel {
   description: string;
   priority: string;
   status: string;
+  user_id: number;
   ticket_category_id: number;
   category: TicketCategoryModel;
   comments: TicketCommentModel[];
