@@ -33,7 +33,7 @@ class TicketPolicy
     {
         // Users can only update their own open tickets
         if ($user->isUser()) {
-            return $ticket->user_id === $user->id && $ticket->status === TicketStatusEnum::OPEN;
+            return $ticket->user_id === $user->id && $ticket->status === TicketStatusEnum::OPEN->value;
         }
 
         // Agents and Admins can update any ticket

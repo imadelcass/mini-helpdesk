@@ -12,7 +12,7 @@ class FaqPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin();
+        return true;
     }
 
     /**
@@ -20,7 +20,7 @@ class FaqPolicy
      */
     public function view(User $user, Faq $faq): bool
     {
-        return $user->isAdmin();
+        return true;
     }
 
     /**
