@@ -1,49 +1,60 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { TableLazyLoadEvent, TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule, TableFilterEvent } from 'primeng/table';
 import { AccordionModule } from 'primeng/accordion';
 import { FaqService } from '../../../core/services/faq-service';
+import { InputTextModule } from 'primeng/inputtext';
+import { TableHelperService, ParsedTableEvent } from '../../../core/services/table-helper.service';
 
 @Component({
   selector: 'app-faq-list-public',
-  imports: [TableModule, AccordionModule],
+  imports: [TableModule, AccordionModule, InputTextModule],
   templateUrl: './faq-list-public.html',
 })
-export class FaqListPublic implements OnInit {
-  allFaqs!: any[];
-  payload = signal({ 'page[currentPage]': 1 });
+export class FaqListPublic {
+  allFaqs = signal<any[]>([]);
+  isInitialized = signal(false);
 
-  constructor(public faqService: FaqService) {}
+  constructor(
+    public faqService: FaqService,
+    private tableHelper: TableHelperService
+  ) {}
 
-  ngOnInit(): void {
-    this.fetchFaqs().add(() => {
-      this.allFaqs = [
-        ...this.faqService.faqs(),
-        ...Array.from({ length: this.faqService.totalRecords() - this.faqService.faqs().length }),
-      ];
+  fetchData(parsedEvent: ParsedTableEvent) {
+    this.faqService.fetch(parsedEvent).subscribe(() => {
+      if (!this.isInitialized()) {
+        this.initializeVirtualScrollData();
+        this.isInitialized.set(true);
+      }
+      this.updateFaqData(parsedEvent);
     });
   }
 
-  fetchFaqs() {
-    return this.faqService.fetch(this.payload()).subscribe();
+  initializeVirtualScrollData() {
+    const totalRecords = this.faqService.totalRecords();
+    const placeholderArray = Array.from({ length: totalRecords }, () => ({}));
+
+    this.allFaqs.set(placeholderArray);
+  }
+
+  private updateFaqData(parsedEvent: ParsedTableEvent) {
+    const currentFaqs = this.allFaqs();
+    const newlyFetchedFaqs = this.faqService.faqs();
+
+    const updatedFaqs = [...currentFaqs];
+
+    const startIndex = (parsedEvent.page.currentPage - 1) * newlyFetchedFaqs.length;
+
+    updatedFaqs.splice(startIndex, newlyFetchedFaqs.length, ...newlyFetchedFaqs);
+
+    this.allFaqs.set(updatedFaqs);
   }
 
   onLazyLoad(event: TableLazyLoadEvent) {
-    const currentPage = event.first! / event.rows! + 1;
+    const parsedEvent = this.tableHelper.parseTableEvent(event);
+    this.fetchData(parsedEvent);
+  }
 
-    if (!isNaN(currentPage) && currentPage != 1) {
-      this.payload.set({
-        ...this.payload(),
-        'page[currentPage]': currentPage,
-      });
-
-      // Update the data
-      this.fetchFaqs().add(() => {
-        this.allFaqs = [
-          ...this.allFaqs.slice(0, event.first!),
-          ...this.faqService.faqs(),
-          ...this.allFaqs.slice(event.first! + event.rows!),
-        ];
-      });
-    }
+  onFilter($event: TableFilterEvent) {
+    this.isInitialized.set(false);
   }
 }
