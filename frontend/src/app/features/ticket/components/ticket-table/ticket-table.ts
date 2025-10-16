@@ -1,13 +1,18 @@
 import { Component, Input, OnInit, signal } from '@angular/core';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { TicketService } from '../../../../core/services/ticket-service';
+import { TicketService } from '@core/services/ticket-service';
 import { AccordionModule } from 'primeng/accordion';
 import { TicketDetail } from '../ticket-detail/ticket-detail';
 import { CommonModule } from '@angular/common';
+import { ButtonModule } from 'primeng/button';
+import { TicketForm } from '../ticket-form/ticket-form';
+import { TicketModel } from '@shared/models/ticket.model';
+import { Auth } from '@core/services/auth';
+import { TicketStatusEnum } from '@shared/enums/ticket-status';
 
 @Component({
   selector: 'app-ticket-table',
-  imports: [TableModule, AccordionModule, TicketDetail, CommonModule],
+  imports: [TableModule, AccordionModule, ButtonModule, TicketDetail, CommonModule, TicketForm],
   templateUrl: './ticket-table.html',
 })
 export class TicketTable implements OnInit {
@@ -16,6 +21,9 @@ export class TicketTable implements OnInit {
     value: '',
   };
 
+  // Properties
+  showTicketForm: boolean = false;
+  selectedTicket: TicketModel | undefined;
   tickets = signal<any[]>([]);
   payload = signal({ 'page[currentPage]': 1, 'filter[status]': '' });
   isInitialized = signal(false);
@@ -23,19 +31,38 @@ export class TicketTable implements OnInit {
   selectedTicketId: number = 0;
   loading = signal(false);
 
+  // Constructor
+  constructor(public ticketService: TicketService, public authService: Auth) {}
+
+  // Methods
+  canUpdateTicket(ticket: any) {
+    return (
+      this.authService.isAdmin() ||
+      this.authService.isAgent() ||
+      (this.authService.isUser() &&
+        ticket.user_id === this.authService.currentUser().id &&
+        ticket.status === TicketStatusEnum.OPEN)
+    );
+  }
+
+  canDeleteTicket(ticket: any) {
+    return (
+      this.authService.isAdmin() ||
+      (this.authService.isUser() && ticket.user_id === this.authService.currentUser().id)
+    );
+  }
+
   onTicketClicked(ticketId: number) {
     this.selectedTicketId = ticketId;
     this.showTicketDetailDialog = true;
   }
-
-  constructor(public ticketService: TicketService) {}
 
   ngOnInit(): void {
     this.payload.set({ 'page[currentPage]': 1, 'filter[status]': this.status.value });
     this.fetchData();
   }
 
-  fetchData() {
+  public fetchData() {
     this.loading.set(true);
     return this.ticketService.fetch(this.payload()).subscribe(() => {
       if (!this.isInitialized()) {
@@ -80,5 +107,25 @@ export class TicketTable implements OnInit {
     updatedTickets.splice(startIndex, newlyFetchedTickets.length, ...newlyFetchedTickets);
 
     this.tickets.set(updatedTickets);
+  }
+
+  public onTicketSaved() {
+    console.log("onTicketSaved called", this.status);
+    
+    this.showTicketForm = false;
+    this.fetchData();
+  }
+
+  onEditTicket(ticket: TicketModel) {
+    this.selectedTicket = ticket;
+    this.showTicketForm = true;
+  }
+
+  onDeleteTicket(ticket: TicketModel) {
+    this.ticketService.delete(ticket.id).subscribe(() => {
+      console.log("onDeleteTicket called");
+      
+      this.fetchData();
+    });
   }
 }
