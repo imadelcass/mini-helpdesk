@@ -33,7 +33,7 @@ class TicketFactory extends Factory
                 TicketPriorityEnum::MEDIUM,
                 TicketPriorityEnum::HIGH,
             ]),
-            'user_id' => User::factory(),
+            'user_id' => fake()->randomElement(User::all())->id,
             'ticket_category_id' => TicketCategory::factory(),
         ];
     }
